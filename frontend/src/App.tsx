@@ -68,7 +68,9 @@ function App() {
 
   const borrowBook = async (isbn: string) => {
     if (!studentId) {
-      showMessage('⚠️ Please enter a Student ID in the section above first!', true);
+      showMessage('⚠️ ACTION REQUIRED: Enter a Student ID in the box above first!', true);
+      // Focus the input if it's missing
+      document.getElementById('student-id-input')?.focus();
       return;
     }
     try {
@@ -91,11 +93,13 @@ function App() {
   const returnBook = async (isbn: string) => {
     try {
       const res = await fetch(`${API_URL}/return/${isbn}`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      
       if (res.ok) {
         showMessage('✅ Book returned to inventory!');
         fetchBooks();
       } else {
-        showMessage('Error returning book', true);
+        showMessage(`❌ Error: ${data.error || 'Server error'}`, true);
       }
     } catch (err) {
       showMessage('Connection error', true);
@@ -150,7 +154,7 @@ function App() {
           <h2>Library Controls</h2>
           <div className="borrow-section">
             <label>ENTER STUDENT ID TO BORROW</label>
-            <input type="number" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="Enter ID (e.g. 501)" style={{marginBottom: '1rem'}} />
+            <input id="student-id-input" type="number" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="Enter ID (e.g. 501)" style={{marginBottom: '1rem'}} />
             <p style={{fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '1rem'}}>* You must enter an ID here before clicking "Borrow" on a book below.</p>
           </div>
           

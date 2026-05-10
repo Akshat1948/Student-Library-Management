@@ -68,7 +68,8 @@ public class LibraryManager {
         if (book == null) {
             throw new InvalidOperationException("Book not found.");
         }
-        if (!book.getStatus().equals("available")) {
+        // Null-safe status check
+        if (book.getStatus() != null && !book.getStatus().equals("available")) {
             throw new BookNotAvailableException("Book is already issued.");
         }
         book.setStatus("issued");
@@ -77,16 +78,27 @@ public class LibraryManager {
     }
 
     public void returnBook(String isbn) throws InvalidOperationException {
+        // 1. Search in-memory list
         Book book = inventory.searchByIsbn(isbn);
+        
+        // 2. If not in memory, try searching DB directly
         if (book == null) {
-            throw new InvalidOperationException("Book not found.");
+            book = bookRepository.findById(isbn).orElse(null);
+            if (book != null) {
+                inventory.addLast(book); // Sync back to list
+            }
         }
-        if (book.getStatus().equals("available")) {
-            throw new InvalidOperationException("Book was not issued.");
+
+        if (book == null) {
+            throw new InvalidOperationException("Book with ISBN " + isbn + " not found in system.");
         }
+
+        // 3. Just set to available (be permissive to fix broken states)
         book.setStatus("available");
-        bookRepository.save(book); // Update status in SQL
+        bookRepository.save(book); 
+        
         transactions.removeIf(t -> t.getIsbn().equals(isbn));
+        System.out.println("Book " + isbn + " returned successfully.");
     }
 
     public List<Book> getAllBooks() {

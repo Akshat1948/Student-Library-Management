@@ -19,7 +19,9 @@ public class Book {
     private double price;
 
     // Default constructor required by JPA
-    public Book() {}
+    public Book() {
+        this.status = "available";
+    }
 
     public Book(String isbn, String title, String author, double price) {
         this.isbn = isbn;
