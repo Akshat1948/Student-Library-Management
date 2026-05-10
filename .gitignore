@@ -1,0 +1,23 @@
+# Java
+target/
+*.class
+bin/
+.mvn/wrapper/maven-wrapper.jar
+library_db.*
+
+# Node / React
+node_modules/
+dist/
+.npm-cache/
+frontend/node_modules/
+frontend/dist/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
